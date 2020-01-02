@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:gravity="center" android:layout_gravity="center" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent">
+<LinearLayout android:layout_gravity="top|center_vertical|center_horizontal|center" android:orientation="vertical" android:id="@+id/LinearLayout01" android:paddingBottom="5dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+    <LinearLayout android:gravity="center_horizontal" android:orientation="horizontal" android:id="@+id/LinearLayout06" android:visibility="invisible" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <SurfaceView android:id="@+id/SurfaceView01" android:visibility="invisible" android:layout_width="wrap_content" android:layout_height="1dp" android:minWidth="300dp" android:minHeight="20dp"/>
+    </LinearLayout>
+    <TextView android:id="@+id/TextView01" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Amplification"/>
+    <SeekBar android:layout_gravity="top|center_vertical|center_horizontal|center" android:id="@+id/SeekBar01" android:paddingLeft="20dp" android:paddingRight="10dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="1000"/>
+</LinearLayout>
+<!--<LinearLayout android:id="@+id/LinearLayoutAd" android:layout_width="match_parent" android:layout_height="50dp">
+    <com.google.android.gms.ads.AdView android:id="@+id/ad" android:layout_width="match_parent" android:layout_height="50dp" ads:adSize="SMART_BANNER" ads:adUnitId="ca-app-pub-6791533624810918/2022144412"/>
+</LinearLayout>-->
+<LinearLayout android:gravity="center_horizontal" android:layout_gravity="bottom|center_vertical|center_horizontal|center" android:id="@+id/LinearLayout02" android:paddingTop="5dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+    <LinearLayout android:gravity="center_horizontal" android:orientation="vertical" android:id="@+id/LinearLayout03" android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <SeekBar android:id="@+id/SeekBar02" android:paddingLeft="20dp" android:paddingRight="20dp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:max="1" android:minWidth="50dp"/>
+        <TextView android:gravity="center_horizontal" android:id="@+id/TextView02" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Off/On"/>
+    </LinearLayout>
+    <LinearLayout android:gravity="center_horizontal" android:orientation="vertical" android:id="@+id/LinearLayout05" android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <SeekBar android:id="@+id/SeekBar04" android:paddingLeft="20dp" android:paddingRight="20dp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:max="1" android:minWidth="50dp"/>
+        <TextView android:id="@+id/TextView04" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Freq Mod Off/On"/>
+    </LinearLayout>
+    <LinearLayout android:gravity="center_horizontal" android:orientation="vertical" android:id="@+id/LinearLayout04" android:paddingLeft="10dp" android:paddingRight="10dp" android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <SeekBar android:id="@+id/SeekBar03" android:paddingLeft="20dp" android:paddingRight="20dp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:max="1" android:minWidth="50dp"/>
+        <TextView android:id="@+id/TextView03" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Noise Gate Off/On"/>
+    </LinearLayout>
+</LinearLayout>
+<LinearLayout android:orientation="vertical" android:id="@+id/LinearLayout07" android:paddingTop="5dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+    <SeekBar android:id="@+id/SeekBar06" android:paddingLeft="20dp" android:paddingRight="20dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="50"/>
+    <TextView android:id="@+id/TextView06" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Frequency Modulator"/>
+    <SeekBar android:id="@+id/SeekBar05" android:paddingLeft="20dp" android:paddingRight="20dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="100"/>
+    <TextView android:id="@+id/TextView05" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Noise Gate"/>
+</LinearLayout>
+</LinearLayout>

@@ -1,0 +1,6 @@
+<resources>
+    <string name="remote_service_started">Amp Service Running</string>
+    <string name="local_service_label">Amp Service Running</string>
+    <string name="app_name">AmpThreshold</string>
+    <string name="about"> Virtual Amp\10 by andro iX\10\10 Recordings are saved to /sdcard/VirtualRecorder. You need Virtual Recorder to play them. !\10 \10 Only turn on with plugged-in earphones to avoid a feedback loop !\10 \10 Always turn down media volume and amplification before putting on earphones.\10 \10 After turning on, begin with raising media volume and raise amplification after.\10 \10 With a double frs connector you can also use your phone as an amplifier microphone for e.g. with your pc.\10 \10 With a bluetooth earphone you can also use your phone as a short range audio spy.\10 \10 But it will not amplify any playback on your phone, like your mp3s.\10 \10 </string>
+</resources>
