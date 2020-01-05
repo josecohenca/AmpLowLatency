@@ -49,7 +49,7 @@ public class MainService extends Service {
     private static AudioManager mAudioMgr;
 
     private static boolean mIsRecording = false;
-    private static FileOutputStream mOutFile = null;
+    //private static FileOutputStream mOutFile = null;
 
     public static boolean isRecording() { return mIsRecording; }
     private final String VR_DIRECTORY = new StringBuilder(String.valueOf(Environment.getExternalStorageDirectory().toString())).append("/VirtualRecorder/").toString();
@@ -108,7 +108,7 @@ public class MainService extends Service {
         };
     }
 
-    private final AudioDeviceCallback mAudioDeviceCallback = createAudioDeviceCallback();
+    private final AudioDeviceCallback mAudioDeviceCallback = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? createAudioDeviceCallback() : null;
 
     @TargetApi(Build.VERSION_CODES.M)
     private void registerAudioPlugV23(boolean register) {
@@ -134,7 +134,8 @@ public class MainService extends Service {
     public void onCreate() {
         myContext = this.getApplicationContext();
         mNotificationManager = (NotificationManager) myContext.getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
-        mBluetoothManager = (BluetoothManager)myContext.getSystemService(Context.BLUETOOTH_SERVICE);
+        //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2)
+        //    mBluetoothManager = (BluetoothManager)myContext.getSystemService(Context.BLUETOOTH_SERVICE);
         mAudioMgr = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
 
         CharSequence name = getText(R.string.remote_service_started);
@@ -179,7 +180,7 @@ public class MainService extends Service {
         }
 
 
-
+        /*
         File standardDirectory = new File(VR_DIRECTORY);
         if (!standardDirectory.isDirectory()) {
             standardDirectory.mkdir();
@@ -197,6 +198,7 @@ public class MainService extends Service {
         } catch (Exception e) {
             Log.e(TAG, e.toString()+". StackTrace: "+Log.getStackTraceString(e));
         }
+        */
 
         //AudioManager am = (AudioManager)this.getSystemService(Context.AUDIO_SERVICE);
         //am.setMode(AudioManager.MODE_IN_COMMUNICATION);
@@ -205,7 +207,7 @@ public class MainService extends Service {
         amp = new VAAmpThread();
         amp.initialize();
         amp.start();
-        amp.setOutFile(this.mOutFile);
+        //amp.setOutFile(this.mOutFile);
 
         oldBTState=isBTOn();
         amp.setBTState(oldBTState);
@@ -276,15 +278,15 @@ public class MainService extends Service {
         registerAudioPlug(false);
         mIsRecording=false;
         amp.requestStopAndQuit();
-        if (amp != null) {
-            amp.setOutFile(null);
-        }
-        try {
-            this.mOutFile.close();
-        } catch (Exception e) {
-            Log.e(TAG, e.toString()+". StackTrace: "+Log.getStackTraceString(e));
-        }
-        this.mOutFile = null;
+        //if (amp != null) {
+        //    amp.setOutFile(null);
+        //}
+        //try {
+        //    this.mOutFile.close();
+        //} catch (Exception e) {
+        //    Log.e(TAG, e.toString()+". StackTrace: "+Log.getStackTraceString(e));
+        //}
+        //this.mOutFile = null;
 
         if (wl != null && wl.isHeld()) {
             wl.release();

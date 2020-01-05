@@ -22,7 +22,7 @@ public class VAAmpThread extends Thread {
     public boolean mError = false;
     private int mFreqMod = 0;
     private boolean mFreqModOn = false;
-    private FileOutputStream mOutFile = null;
+    //private FileOutputStream mOutFile = null;
     private AudioTrack mPlayTrack;
     private AudioRecord mRecTrack;
     private boolean mStopped = false;
@@ -99,13 +99,13 @@ public class VAAmpThread extends Thread {
 
                 if(isBTOn) {
                     this.mPlayTrack.write(this.mBuffer, 0, size.intValue());
-                    if (this.mOutFile != null) {
-                        try {
-                            this.mOutFile.write(halfSample(this.mBuffer), 0, this.mBuffer.length / 2);
-                        } catch (Exception e2) {
-                            e2.printStackTrace();
-                        }
-                    }
+                    //if (this.mOutFile != null) {
+                    //    try {
+                    //        this.mOutFile.write(halfSample(this.mBuffer), 0, this.mBuffer.length / 2);
+                    //    } catch (Exception e2) {
+                    //        e2.printStackTrace();
+                    //    }
+                    //}
                 }
             }
         }
@@ -294,7 +294,7 @@ public class VAAmpThread extends Thread {
         return audioData;
     }
 
-    public void setOutFile(FileOutputStream aFileOutputStream) {
-        this.mOutFile = aFileOutputStream;
-    }
+    //public void setOutFile(FileOutputStream aFileOutputStream) {
+    //    this.mOutFile = aFileOutputStream;
+    //}
 }
