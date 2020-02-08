@@ -1,5 +1,5 @@
 #
-# Copyright 2017 The Android Open Source Project
+# Copyright 2018 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,47 +13,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 cmake_minimum_required(VERSION 3.4.1)
 
-### INCLUDE OBOE LIBRARY ###
 
-# Set the path to the Oboe library directory
+### INCLUDE OBOE LIBRARY ###
 set (OBOE_DIR ../oboe)
 
-# Add the Oboe library as a subproject. Since Oboe is an out-of-tree source library we must also
-# specify a binary directory
 add_subdirectory(${OBOE_DIR} ./oboe-bin)
 
-# Include the Oboe headers and shared sample code
 include_directories(${OBOE_DIR}/include ${OBOE_DIR}/samples/shared)
 
-# Debug utilities
 set (DEBUG_UTILS_PATH "${OBOE_DIR}/samples/debug-utils")
 set (DEBUG_UTILS_SOURCES ${DEBUG_UTILS_PATH}/trace.cpp)
+
 include_directories(${DEBUG_UTILS_PATH})
-
-
-### END OBOE INCLUDE SECTION ###
-
 
 # App specific sources
 set (APP_SOURCES
-    jni_bridge.cpp
-    HelloOboeEngine.cpp
-    SoundGenerator.cpp
-    LatencyTuningCallback.cpp
-)
+        jni_bridge.cpp
+        LiveEffectEngine.cpp
+        FullDuplexStream.cpp
+        )
 
-# Build the libhello-oboe library
-add_library(HelloOboeEngine SHARED
-            ${DEBUG_UTILS_SOURCES}
-            ${APP_SOURCES}
-            )
 
-# Specify the libraries needed for hello-oboe
-target_link_libraries(HelloOboeEngine android log oboe)
+add_library(liveEffect SHARED
+        ${DEBUG_UTILS_SOURCES}
+        ${APP_SOURCES}
+        )
+
+target_link_libraries(liveEffect android atomic log oboe)
+target_include_directories(liveEffect PRIVATE  ${DEBUG_UTILS_PATH} ${OBOE_DIR}/samples/shared ${OBOE_DIR}/include)
 
 # Enable optimization flags: if having problems with source level debugging,
-# disable -Ofast ( and debug ), re-enable after done debugging.
-target_compile_options(HelloOboeEngine PRIVATE -Wall -Werror "$<$<CONFIG:RELEASE>:-Ofast>")
+# disable -Ofast ( and debug ), re-enable it after done debugging.
+target_compile_options(liveEffect PRIVATE  -Wall -Werror "$<$<CONFIG:RELEASE>:-Ofast>")
+
+
