@@ -240,6 +240,13 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         initControls();
         checkPermission();
         addOptionalMenuButton();
+
+        boolean hasLowLatencyFeature =
+                getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUDIO_LOW_LATENCY);
+
+        boolean hasProFeature =
+                getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUDIO_PRO);
+
     }
 
     private void drawUI() {

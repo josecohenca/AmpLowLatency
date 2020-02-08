@@ -1,24 +1,28 @@
 package com.example.ampthreshold;
 
 import android.content.Context;
+import android.media.AudioDeviceInfo;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
-import android.media.AudioRouting;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
-import android.media.audiofx.NoiseSuppressor;
 import android.os.Process;
-import android.util.Log;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static android.media.AudioManager.GET_DEVICES_INPUTS;
+
 //import com.google.android.gms.nearby.connection.Connections;
-import java.io.FileOutputStream;
+
 
 /* renamed from: ix.com.android.VirtualAmp.VAAmpThread */
-public class VAAmpThread extends Thread {
+public class VAAudioThread extends Thread {
     private VAByteBuffer echoBuffer = new VAByteBuffer();
     private VAByteBuffer echoBuffer2 = new VAByteBuffer();
     private float mAmplifier = 1.0f;
-    private byte[] mBuffer;
+    private float[] mBuffer;
     //private byte[] outBuffer;
     private int mBufferSize;
     private int mEchoEffect = 0;
@@ -36,13 +40,11 @@ public class VAAmpThread extends Thread {
     private Context myContext;
 
 
-    private NoiseSuppressor noiseSuppressor = null;
-
     public void setBTState(boolean _set){
         isBTOn=_set;
     }
 
-    VAAmpThread(Context _context) {
+    VAAudioThread(Context _context) {
         this.myContext=_context;
     }
 
@@ -52,40 +54,30 @@ public class VAAmpThread extends Thread {
         } catch (Exception e) {
         }
 
-
         AudioManager am = (AudioManager) this.myContext.getSystemService(Context.AUDIO_SERVICE);
+
+        AudioDeviceInfo[] audioDeviceInfos = am.getDevices(GET_DEVICES_INPUTS);
+
+        Map<String,int[]> sampleRates = new HashMap<>();
+        for(AudioDeviceInfo f : audioDeviceInfos){
+            sampleRates.put(f.getProductName().toString(),f.getSampleRates());
+        }
+
 
         String sampleRateStr = am.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
         int sampleRate = Integer.parseInt(sampleRateStr);
-        if (sampleRate == 0) sampleRate = 44100; // Use a default value if property not found
+        if (sampleRate == 0) sampleRate = 48000; // Use a default value if property not found
 
         String framesPerBuffer = am.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER);
         int framesPerBufferInt = Integer.parseInt(framesPerBuffer);
         if (framesPerBufferInt == 0) framesPerBufferInt = 256; // Use default
 
-        int intMinBufferSize = AudioTrack.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
-        int intMinBufferSizeRec = AudioRecord.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-        //if (intMinBufferSize <= 0) {
-        //    intMinBufferSize = Connections.MAX_RELIABLE_MESSAGE_LEN;
-        //}
-        if (intMinBufferSizeRec > intMinBufferSize) {
-            this.mBufferSize = intMinBufferSizeRec;
-        } else {
-            this.mBufferSize = intMinBufferSize;
-        }
+        this.mBufferSize = AudioTrack.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_FLOAT);
         this.mBufferSize = (int)(Math.ceil(this.mBufferSize / (double)framesPerBufferInt) * framesPerBufferInt);
 
-        this.mPlayTrack = new AudioTrack(AudioManager.STREAM_VOICE_CALL, sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, this.mBufferSize, AudioTrack.MODE_STREAM);
-        this.mRecTrack = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, this.mBufferSize);
-
-        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN)
-        {
-            noiseSuppressor = NoiseSuppressor.create(this.mRecTrack.getAudioSessionId());
-        }
-
-
-
-        this.mBuffer = new byte[this.mBufferSize];
+        this.mPlayTrack = new AudioTrack(AudioManager.STREAM_VOICE_CALL, sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_FLOAT, this.mBufferSize, AudioTrack.MODE_STREAM);
+        this.mRecTrack = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_FLOAT, this.mBufferSize);
+        this.mBuffer = new float[this.mBufferSize];
         if (this.mRecTrack.getState() == 0) {
             this.mError = true;
             return;
@@ -136,7 +128,7 @@ public class VAAmpThread extends Thread {
             this.mPlayTrack.play();
         }
         while (!this.mStopped) {
-            Integer size = Integer.valueOf(this.mRecTrack.read(this.mBuffer, 0, this.mBuffer.length));
+            Integer size = Integer.valueOf(this.mRecTrack.read(this.mBuffer, 0, this.mBuffer.length, AudioRecord.READ_BLOCKING));
 
             //short[] inputData = byte2short(this.mBuffer);
             //short[] outData = new short[inputData.length/2];
@@ -147,7 +139,7 @@ public class VAAmpThread extends Thread {
                 this.mStopped = true;
             } else if (size.intValue() == 0) {
                 try {
-                    Thread.sleep(1);
+                    Thread.sleep(5);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -167,7 +159,7 @@ public class VAAmpThread extends Thread {
 
                 //if(isBTOn) {
                 //this.outBuffer = this.mBuffer;
-                this.mPlayTrack.write(this.mBuffer, 0, this.mBuffer.length);
+                this.mPlayTrack.write(this.mBuffer, 0, this.mBuffer.length,AudioTrack.WRITE_BLOCKING);
                     //if (this.mOutFile != null) {
                     //    try {
                     //        this.mOutFile.write(halfSample(this.mBuffer), 0, this.mBuffer.length / 2);
@@ -185,59 +177,41 @@ public class VAAmpThread extends Thread {
             this.mRecTrack.stop();
             this.mRecTrack.release();
             this.mRecTrack = null;
-            if(noiseSuppressor != null)
-                noiseSuppressor.release();
         }
     }
 
-    private byte[] preAmp(byte[] pcmData) {
-        short[] sData = byte2short(pcmData);
-        for (int i2 = 0; i2 < sData.length - 1; i2 ++) {
-            sData[i2] = (short) (this.mAmplifier * ((float) sData[i2]));
+    private float[] preAmp(float[] pcmData) {
+        float[] sData = new float[pcmData.length];
+        for (int i2 = 0; i2 < pcmData.length - 1; i2 ++) {
+            sData[i2] = (this.mAmplifier * pcmData[i2]);
+            //sData[i2] = (short) (this.mAmplifier * ((float) sData[i2]));
         }
-        return short2byte(sData);
+        return sData;
     }
 
-    private byte[] preFilter(byte[] pcmData) {
+    private float[] preFilter(float[] pcmData) {
         int i;
         int peakFactor = 4*10;
         byte b;
-        byte[] audioData = new byte[pcmData.length];
+        float[] audioData = new float[pcmData.length];
         int countPeaks=0;
-        for (int i2 = 0; i2 < pcmData.length - 1; i2 += 2) {
-            if (pcmData[i2] < 0) {
-                i = (pcmData[i2 + 1] + 1) << 8;
-                b = pcmData[i2];
-            } else {
-                i = pcmData[i2 + 1] << 8;
-                b = pcmData[i2];
-            }
-            short newVal = (short) (i + b);
-            if(Math.abs(newVal)>256*32*(this.mEchoEffect/100.0f)){
+        for (int i2 = 0; i2 < pcmData.length - 1; i2 ++) {
+            if(Math.abs(pcmData[i2])>256*32*(this.mEchoEffect/100.0f)){
                 countPeaks++;
             }
         }
 
-        for (int i2 = 0; i2 < pcmData.length - 1; i2 += 2) {
-            if (pcmData[i2] < 0) {
-                i = (pcmData[i2 + 1] + 1) << 8;
-                b = pcmData[i2];
-            } else {
-                i = pcmData[i2 + 1] << 8;
-                b = pcmData[i2];
-            }
-            short newVal = (short) (i + b);
+        for (int i2 = 0; i2 < pcmData.length - 1; i2 ++) {
+
             if(peakFactor*countPeaks<pcmData.length){
-                newVal=0;
+                audioData[i2]=0;
                 mSilence=true;
                 mSilenceTime = System.currentTimeMillis();
             }
-            else
-                mSilence=false;
-
-            byte pos2 = (byte) (newVal >> 8);
-            audioData[i2] = (byte) newVal;
-            audioData[i2 + 1] = pos2;
+            else {
+                mSilence = false;
+                audioData[i2]=pcmData[i2];
+            }
         }
         return audioData;
     }

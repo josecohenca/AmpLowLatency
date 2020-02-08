@@ -61,8 +61,8 @@ public class MainService extends Service {
     private static PowerManager.WakeLock wl = null;
 
     private boolean mAudioPlugRegistered = false;
-    private boolean oldBTState = false;
-
+    //private boolean oldBTState = false;
+/*
     @TargetApi(Build.VERSION_CODES.M)
     private AudioDeviceCallback createAudioDeviceCallback() {
 
@@ -129,7 +129,7 @@ public class MainService extends Service {
         mAudioPlugRegistered = register;
     }
 
-
+*/
     @Override
     public void onCreate() {
         myContext = this.getApplicationContext();
@@ -204,15 +204,15 @@ public class MainService extends Service {
         //am.setMode(AudioManager.MODE_IN_COMMUNICATION);
         //am.setSpeakerphoneOn(false);
 
-        amp = new VAAmpThread();
+        amp = new VAAmpThread(myContext);
         amp.initialize();
         amp.start();
         //amp.setOutFile(this.mOutFile);
 
-        oldBTState=isBTOn();
-        amp.setBTState(oldBTState);
+        //oldBTState=isBTOn();
+        //amp.setBTState(oldBTState);
 
-        registerAudioPlug(true);
+        //registerAudioPlug(true);
 
         return Service.START_STICKY;
     }
@@ -275,7 +275,7 @@ public class MainService extends Service {
 
     @Override
     public void onDestroy() {
-        registerAudioPlug(false);
+        //registerAudioPlug(false);
         mIsRecording=false;
         amp.requestStopAndQuit();
         //if (amp != null) {
